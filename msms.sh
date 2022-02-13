@@ -16,17 +16,20 @@ TG_API_URL="https://api.telegram.org/bot$(cat ../telegram-api-key.txt)/sendMessa
 # recipients chat id list should be in "recipients.txt" file
 #################################################################
 function send_message {
-    for chat_id  in $(cat $MSMS_RECIPIENTS); do
+  if [ -f "$MSMS_RECIPIENTS" ]; then
+    for chat_id in $(cat $MSMS_RECIPIENTS); do
       echo
       curl -s -X POST --connect-timeout 10 $TG_API_URL -d chat_id=$chat_id -d parse_mode="Markdown" -d text="$1"  # > /dev/null
-      echo
     done
-
-    for chat_id  in $(cat common-recipients.txt); do
+  else 
       echo
-      curl -s -X POST --connect-timeout 10 $TG_API_URL -d chat_id=$chat_id -d parse_mode="Markdown" -d text="$1"  # > /dev/null
-      echo
-    done
+      echo "Custom recipients file absent: $MSMS_RECIPIENTS"
+  fi
+  
+  for chat_id in $(cat common-recipients.txt); do
+    echo
+    curl -s -X POST --connect-timeout 10 $TG_API_URL -d chat_id=$chat_id -d parse_mode="Markdown" -d text="$1"  # > /dev/null
+  done
 }
 
 #################################################################
