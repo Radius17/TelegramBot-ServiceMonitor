@@ -33,9 +33,9 @@ MSMS_RECIPIENTS='my-service-recipients.txt'
 ```
 ### 4. RUN ON SCHEDULE
 - run: ```sudo crontab -e```
-- to check service every minute and send alert if service unavailable or response unexpectedly, add line:
+- to check service every 5 minutes and send alert if service unavailable or response unexpectedly, add line:
 ```
-*/1 * * * * /PATH_TO_BOT/monitoring.sh >> /PATH_TO_BOT_LOG/monitoring.log 2>&1
+*/5 * * * * /PATH_TO_BOT/monitoring.sh >> /PATH_TO_BOT_LOG/monitoring.log 2>&1
 ```
 - to enable alert every day at 10:00AM as confirmation that monitoring itself is alive, add line:
 ```
