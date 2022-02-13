@@ -8,6 +8,6 @@
 cd $(dirname "$0")/services
 
 for service_ini  in $(ls *.ini); do
-#    echo proceed $service_ini...
+    # echo proceed $service_ini...
     bash ../msms.sh "$1" "$service_ini"
 done

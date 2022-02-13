@@ -17,8 +17,9 @@ TG_API_URL="https://api.telegram.org/bot$(cat ../telegram-api-key.txt)/sendMessa
 #################################################################
 function send_message {
     for chat_id  in $(cat $MSMS_RECIPIENTS); do
-	curl -s -X POST --connect-timeout 10 $TG_API_URL -d chat_id=$chat_id -d parse_mode="Markdown" -d text="$1"  # > /dev/null
-	echo
+      echo
+      curl -s -X POST --connect-timeout 10 $TG_API_URL -d chat_id=$chat_id -d parse_mode="Markdown" -d text="$1"  # > /dev/null
+      echo
     done
 }
 
@@ -46,8 +47,16 @@ if [[ $EXIT_CODE != 0 ]]; then
     MESSAGE=$(eval echo $MESSAGE)
     send_message "$MESSAGE"
 elif [[ "$RESPONSE" != "$MSMS_EXPECTED" ]]; then
-    echo health-check \"$MSMS_SERVICE_NAME\" FAILED: "$RESPONSE"
-    MESSAGE="$(cat ../templates/service-fail.txt)"
+    echo health-check \"$MSMS_SERVICE_NAME\" FAILED WITH RESPONSE: "$RESPONSE"
+    if [ -n "$MSMS_EXPECTED_FILE" ]; then
+      echo health-check \"$MSMS_SERVICE_NAME\" FAILED.
+      MSMS_EXPECTED_FILE_REAL=$(basename "$MSMS_EXPECTED_FILE")
+      MSMS_EXPECTED_FILE_REAL="~${MSMS_EXPECTED_FILE_REAL%.*}-real.${MSMS_EXPECTED_FILE_REAL##*.}"
+      echo "$RESPONSE" > "$MSMS_EXPECTED_FILE_REAL"
+      MESSAGE="$(cat ../templates/service-fail.txt)"
+    else
+      MESSAGE="$(cat ../templates/service-fail-with-code.txt)"
+    fi
     MESSAGE=$(eval echo $MESSAGE)
     send_message "$MESSAGE"
 else

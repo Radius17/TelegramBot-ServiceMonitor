@@ -35,8 +35,8 @@ MSMS_RECIPIENTS='my-service-recipients.txt'
 ```
 */1 * * * * /drclinics/bot/monitoring/monitoring.sh >> /drclinics/bot/monitoring/monitoring.log 2>&1
 ```
-- to enable alert every day at 11:00AM as confirmation that monitoring itself is alive, add line:
+- to enable alert every day at 10:00AM as confirmation that monitoring itself is alive, add line:
 ```
-0 11 * * * /drclinics/bot/monitoring.sh DAILY >> /drclinics/telemed/logs/monitoring.log 2>&1
+0 10 * * * /drclinics/bot/monitoring.sh DAILY >> /drclinics/telemed/logs/monitoring.log 2>&1
 ```
 - run: ```sudo service cron reload```
