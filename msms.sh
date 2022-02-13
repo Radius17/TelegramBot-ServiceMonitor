@@ -21,6 +21,12 @@ function send_message {
       curl -s -X POST --connect-timeout 10 $TG_API_URL -d chat_id=$chat_id -d parse_mode="Markdown" -d text="$1"  # > /dev/null
       echo
     done
+
+    for chat_id  in $(cat common-recipients.txt); do
+      echo
+      curl -s -X POST --connect-timeout 10 $TG_API_URL -d chat_id=$chat_id -d parse_mode="Markdown" -d text="$1"  # > /dev/null
+      echo
+    done
 }
 
 #################################################################
