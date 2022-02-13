@@ -1,2 +1,3 @@
 services/google-recipients.txt
+services/~*.html
 telegram-api-key.txt
