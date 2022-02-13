@@ -36,9 +36,6 @@ function send_message {
     fi
   done
 }
-
-#################################################################
-# perform service check
 #################################################################
 echo
 echo $(date '+%Y-%m-%d %H:%M:%S')
@@ -46,44 +43,48 @@ echo $(date '+%Y-%m-%d %H:%M:%S')
 # load variables from .ini file:
 . $2
 
-# bash ./$2
 # echo service name: "$MSMS_SERVICE_NAME"
 # cd $(dirname "$0")
-if [ -n "$MSMS_EXPECTED_FILE" ]; then
- MSMS_EXPECTED="$(cat "$MSMS_EXPECTED_FILE")"
-fi
-# echo expected: "$MSMS_EXPECTED"
 
-RESPONSE="$(eval curl $MSMS_CURL_PARAMS \"$MSMS_SERVICE_ENDPOINT\")"
-EXIT_CODE=$?
-if [[ $EXIT_CODE != 0 ]]; then
-  echo health-check \"$MSMS_SERVICE_NAME\" FAILED: CURL EXIT WITH $EXIT_CODE
-  MESSAGE="$(cat ../templates/curl-fail.txt)"
-  MESSAGE=$(eval echo $MESSAGE)
-  send_message "$MESSAGE"
-elif [[ "$RESPONSE" != "$MSMS_EXPECTED" ]]; then
-  if [ -n "$MSMS_EXPECTED_FILE" ]; then
-    echo health-check \"$MSMS_SERVICE_NAME\" FAILED.
-    MSMS_EXPECTED_FILE_REAL=$(basename "$MSMS_EXPECTED_FILE")
-    MSMS_EXPECTED_FILE_REAL="~${MSMS_EXPECTED_FILE_REAL%.*}-real.${MSMS_EXPECTED_FILE_REAL##*.}"
-    echo "$RESPONSE" > "$MSMS_EXPECTED_FILE_REAL"
-    MESSAGE="$(cat ../templates/service-fail.txt)"
-  else
-    echo health-check \"$MSMS_SERVICE_NAME\" FAILED WITH RESPONSE: "$RESPONSE"
-    MESSAGE="$(cat ../templates/service-fail-with-code.txt)"
-  fi
-  MESSAGE=$(eval echo $MESSAGE)
-  send_message "$MESSAGE"
-else
-  echo health-check \"$MSMS_SERVICE_NAME\": OK
-fi
-
+if test "$1" = "DAILY"; then
 #################################################################
 # daily alert for confirmation that monitoring itself is working
 #################################################################
-if test "$1" = "DAILY"; then
   echo health-check \"$MSMS_SERVICE_NAME\" DAILY
   MESSAGE="$(cat ../templates/daily.txt)"
   MESSAGE=$(eval echo $MESSAGE)
   send_message "$MESSAGE"
+else
+#################################################################
+# perform service check
+#################################################################
+  if [ -n "$MSMS_EXPECTED_FILE" ]; then
+   MSMS_EXPECTED="$(cat "$MSMS_EXPECTED_FILE")"
+  fi
+  # echo expected: "$MSMS_EXPECTED"
+
+  RESPONSE="$(eval curl $MSMS_CURL_PARAMS \"$MSMS_SERVICE_ENDPOINT\")"
+  EXIT_CODE=$?
+  if [[ $EXIT_CODE != 0 ]]; then
+    echo health-check \"$MSMS_SERVICE_NAME\" FAILED: CURL EXIT WITH $EXIT_CODE
+    MESSAGE="$(cat ../templates/curl-fail.txt)"
+    MESSAGE=$(eval echo $MESSAGE)
+    send_message "$MESSAGE"
+  elif [[ "$RESPONSE" != "$MSMS_EXPECTED" ]]; then
+    if [ -n "$MSMS_EXPECTED_FILE" ]; then
+      echo health-check \"$MSMS_SERVICE_NAME\" FAILED.
+      MSMS_EXPECTED_FILE_REAL=$(basename "$MSMS_EXPECTED_FILE")
+      MSMS_EXPECTED_FILE_REAL="~${MSMS_EXPECTED_FILE_REAL%.*}-real.${MSMS_EXPECTED_FILE_REAL##*.}"
+      echo "$RESPONSE" > "$MSMS_EXPECTED_FILE_REAL"
+      MESSAGE="$(cat ../templates/service-fail.txt)"
+    else
+      echo health-check \"$MSMS_SERVICE_NAME\" FAILED WITH RESPONSE: "$RESPONSE"
+      MESSAGE="$(cat ../templates/service-fail-with-code.txt)"
+    fi
+    MESSAGE=$(eval echo $MESSAGE)
+    send_message "$MESSAGE"
+  else
+    echo health-check \"$MSMS_SERVICE_NAME\": OK
+  fi
 fi
+
