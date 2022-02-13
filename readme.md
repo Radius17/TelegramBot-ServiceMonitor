@@ -7,12 +7,12 @@ Simple script to monitore web services using native linux tools: bash, curl & cr
 
 ### 1. CREATE TELEGRAM BOT
 - find @botfather in telegram and follow instructions
-- get api key for you bot from @botfather and put it into file: telegram-api.key
+- get api key for you bot from @botfather and put it into file: ```telegram-api-key.txt```
 
 ### 2. ADD RECIPIENTS
 - recipient should find your bot in telegram and ```/start``` it
 - then you can run ```./recipients-setup.sh``` and follow instructions
-- common recipients for all services place to ```services/common-recipients.txt```
+- common recipients for all services place into file: ```services/common-recipients.txt```
 - you can temporary disable recipient by adding ```#``` as first character
 
 ### 3. CONFIGURE SERVICES TO MONITORE
@@ -35,10 +35,10 @@ MSMS_RECIPIENTS='my-service-recipients.txt'
 - run: ```sudo crontab -e```
 - to check service every minute and send alert if service unavailable or response unexpectedly, add line:
 ```
-*/1 * * * * /drclinics/bot/monitoring/monitoring.sh >> /drclinics/bot/monitoring/monitoring.log 2>&1
+*/1 * * * * /PATH_TO_BOT/monitoring.sh >> /PATH_TO_BOT_LOG/monitoring.log 2>&1
 ```
 - to enable alert every day at 10:00AM as confirmation that monitoring itself is alive, add line:
 ```
-0 10 * * * /drclinics/bot/monitoring.sh DAILY >> /drclinics/telemed/logs/monitoring.log 2>&1
+0 10 * * * /PATH_TO_BOT/monitoring.sh DAILY >> /PATH_TO_BOT_LOG/monitoring.log 2>&1
 ```
 - run: ```sudo service cron reload```
