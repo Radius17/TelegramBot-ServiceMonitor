@@ -5,9 +5,13 @@
 # see details in readme.md
 #################################################################
 
+clear
+
 cd $(dirname "$0")/services
 
 for service_ini  in $(ls *.ini); do
     # echo proceed $service_ini...
     bash ../msms.sh "$1" "$service_ini"
 done
+
+echo
