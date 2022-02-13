@@ -1,5 +1,6 @@
+logs/*
+services/.gitignore
+services/~*.html
 services/common-recipients.txt
 services/google-recipients.txt
-services/~*.html
-services/.gitignore
 telegram-api-key.txt

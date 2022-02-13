@@ -5,7 +5,7 @@
 # see details in readme.md
 #################################################################
 
-clear
+#clear
 
 cd $(dirname "$0")/services
 
