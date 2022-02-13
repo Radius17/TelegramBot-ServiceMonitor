@@ -18,23 +18,23 @@ TG_API_URL="https://api.telegram.org/bot$(cat ../telegram-api-key.txt)/sendMessa
 function send_message {
   if [ -f "$MSMS_RECIPIENTS" ]; then
     for chat_id in $(cat $MSMS_RECIPIENTS); do
-      echo
-      curl -s -X POST --connect-timeout 10 $TG_API_URL -d chat_id=$chat_id -d parse_mode="Markdown" -d text="$1"  # > /dev/null
+#      echo
+      curl -s -X POST --connect-timeout 10 $TG_API_URL -d chat_id=$chat_id -d parse_mode="Markdown" -d text="$1" > /dev/null
     done
   else 
-      echo
       echo "Custom recipients file absent: $MSMS_RECIPIENTS"
   fi
   
   for chat_id in $(cat common-recipients.txt); do
-    echo
-    curl -s -X POST --connect-timeout 10 $TG_API_URL -d chat_id=$chat_id -d parse_mode="Markdown" -d text="$1"  # > /dev/null
+#    echo
+    curl -s -X POST --connect-timeout 10 $TG_API_URL -d chat_id=$chat_id -d parse_mode="Markdown" -d text="$1" > /dev/null
   done
 }
 
 #################################################################
 # perform service check
 #################################################################
+echo
 echo $(date '+%Y-%m-%d %H:%M:%S')
 
 # load variables from .ini file:
@@ -51,33 +51,33 @@ fi
 RESPONSE="$(eval curl $MSMS_CURL_PARAMS \"$MSMS_SERVICE_ENDPOINT\")"
 EXIT_CODE=$?
 if [[ $EXIT_CODE != 0 ]]; then
-    echo health-check \"$MSMS_SERVICE_NAME\" FAILED: CURL EXIT WITH $EXIT_CODE
-    MESSAGE="$(cat ../templates/curl-fail.txt)"
-    MESSAGE=$(eval echo $MESSAGE)
-    send_message "$MESSAGE"
+  echo health-check \"$MSMS_SERVICE_NAME\" FAILED: CURL EXIT WITH $EXIT_CODE
+  MESSAGE="$(cat ../templates/curl-fail.txt)"
+  MESSAGE=$(eval echo $MESSAGE)
+  send_message "$MESSAGE"
 elif [[ "$RESPONSE" != "$MSMS_EXPECTED" ]]; then
+  if [ -n "$MSMS_EXPECTED_FILE" ]; then
+    echo health-check \"$MSMS_SERVICE_NAME\" FAILED.
+    MSMS_EXPECTED_FILE_REAL=$(basename "$MSMS_EXPECTED_FILE")
+    MSMS_EXPECTED_FILE_REAL="~${MSMS_EXPECTED_FILE_REAL%.*}-real.${MSMS_EXPECTED_FILE_REAL##*.}"
+    echo "$RESPONSE" > "$MSMS_EXPECTED_FILE_REAL"
+    MESSAGE="$(cat ../templates/service-fail.txt)"
+  else
     echo health-check \"$MSMS_SERVICE_NAME\" FAILED WITH RESPONSE: "$RESPONSE"
-    if [ -n "$MSMS_EXPECTED_FILE" ]; then
-      echo health-check \"$MSMS_SERVICE_NAME\" FAILED.
-      MSMS_EXPECTED_FILE_REAL=$(basename "$MSMS_EXPECTED_FILE")
-      MSMS_EXPECTED_FILE_REAL="~${MSMS_EXPECTED_FILE_REAL%.*}-real.${MSMS_EXPECTED_FILE_REAL##*.}"
-      echo "$RESPONSE" > "$MSMS_EXPECTED_FILE_REAL"
-      MESSAGE="$(cat ../templates/service-fail.txt)"
-    else
-      MESSAGE="$(cat ../templates/service-fail-with-code.txt)"
-    fi
-    MESSAGE=$(eval echo $MESSAGE)
-    send_message "$MESSAGE"
+    MESSAGE="$(cat ../templates/service-fail-with-code.txt)"
+  fi
+  MESSAGE=$(eval echo $MESSAGE)
+  send_message "$MESSAGE"
 else
-    echo health-check \"$MSMS_SERVICE_NAME\": OK
+  echo health-check \"$MSMS_SERVICE_NAME\": OK
 fi
 
 #################################################################
 # daily alert for confirmation that monitoring itself is working
 #################################################################
 if test "$1" = "DAILY"; then
-    echo health-check \"$MSMS_SERVICE_NAME\" DAILY
-    MESSAGE="$(cat ../templates/daily.txt)"
-    MESSAGE=$(eval echo $MESSAGE)
-    send_message "$MESSAGE"
+  echo health-check \"$MSMS_SERVICE_NAME\" DAILY
+  MESSAGE="$(cat ../templates/daily.txt)"
+  MESSAGE=$(eval echo $MESSAGE)
+  send_message "$MESSAGE"
 fi
