@@ -7,7 +7,7 @@ Simple script to monitore web services using native linux tools: bash, curl & cr
 
 ### 1. CREATE TELEGRAM BOT
 - find @botfather in telegram and follow instructions
-- get api key for you bot from @botfather and put it into file: ```telegram-api-key.txt```
+- get api key for you bot from @botfather and put it into file: ```config/telegram-api-key.txt```
 
 ### 2. ADD RECIPIENTS
 - recipient should find your bot in telegram and ```/start``` it
